@@ -60,36 +60,34 @@ fi
 
 # Enable Mods
 enabledpath=$HOME/.local/share/Terraria/tModLoader/Mods/enabled.json
-modpath=$HOME/terraria-server/workshop-mods/steamapps/workshop/content/1281930
+modpath=$HOME/.local/share/Terraria/tModLoader/Mods
 rm -f $enabledpath
 
 if test -z "${TMOD_ENABLEDMODS}" ; then
-    echo -e "[SYSTEM] No mods to load. Please set the TMOD_ENABLEDMODS environment variable equal to a comma separated list of Mod Workshop IDs."
+    echo -e "[SYSTEM] No mods to load. Please set the TMOD_ENABLEDMODS environment variable equal to a comma-separated list of mod names."
     echo -e "[SYSTEM] For more information, please see the Github README."
     sleep 5s
 else
   echo -e "[SYSTEM] Enabling Mods specified in the TMOD_ENABLEDMODS Environment variable..."
-  echo '[' >> $enabledpath
-  # Convert the Comma separated list of Mod IDs to an iterable list. We use this to drill through the directories and get the internal names of the mods.
-  echo -e $TMOD_ENABLEDMODS | tr "," "\n" | while read LINE
+  echo '[' > "$enabledpath_temp"  # Write to a temporary file instead of directly modifying enabled.json
+  # Convert the comma-separated list of mod names to an iterable list.
+  IFS=',' read -ra MOD_NAMES <<< "$TMOD_ENABLEDMODS"
+  for MOD_NAME in "${MOD_NAMES[@]}"
   do
-    echo -e "[SYSTEM] Enabling $LINE..."
+    echo -e "[SYSTEM] Enabling $MOD_NAME..."
 
+    modname=$(ls -1 "$(ls -d "$modpath"/*/"$MOD_NAME"*/ | tail -n 1)" | sed -e 's/\.tmod$//')
     if [ $? -ne 0 ]; then
-      echo -e "[!!] Mod ID $LINE not found! Has it been downloaded?"
+      echo -e " [!!] An error occurred while attempting to load $MOD_NAME."
       continue
     fi
-    modname=$(ls -1 $(ls -d $modpath/$LINE/*/|tail -n 1) | sed -e 's/\.tmod$//')
-    if [ $? -ne 0 ]; then
-      echo -e " [!!] An error occurred while attempting to load $LINE."
-      continue
-    fi
-    # For each mod name that we resolve, write the internal name of it to the enabled.json file.
-    echo "\"$modname\"," >> $enabledpath
-    echo -e "[SYSTEM] Enabled $modname ($LINE) "
+    # For each mod name that we resolve, write the internal name of it to the temporary file.
+    echo "\"$modname\"," >> "$enabledpath_temp"
+    echo -e "[SYSTEM] Enabled $modname ($MOD_NAME) "
   done
-    echo ']' >> $enabledpath
-    echo "\n[SYSTEM] Finished loading mods."
+    echo ']' >> "$enabledpath_temp"
+    mv "$enabledpath_temp" "$enabledpath"  # Replace enabled.json with the temporary file
+    echo -e "\n[SYSTEM] Finished loading mods."
 fi
 
 # Startup command
