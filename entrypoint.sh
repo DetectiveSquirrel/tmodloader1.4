@@ -47,39 +47,41 @@ function shutdown () {
 }
 
 # Enable Mods
-enabledpath=$HOME/.local/share/Terraria/tModLoader/Mods/enabled.json
-modpath=$HOME/.local/share/Terraria/tModLoader/Mods
-rm -f $enabledpath
+enabledpath="$HOME/.local/share/Terraria/tModLoader/Mods/enabled.json"
+modpath="$HOME/.local/share/Terraria/tModLoader/Mods"
+rm -f "$enabledpath"
 
-if test -z "${TMOD_ENABLEDMODS}" ; then
-    echo -e "[SYSTEM] No mods to load. Please set the TMOD_ENABLEDMODS environment variable equal to a comma-separated list of mod names."
-    echo -e "[SYSTEM] For more information, please see the Github README."
-    sleep 5s
+if [ -z "$TMOD_ENABLEDMODS" ]; then
+  echo -e "[SYSTEM] No mods to load. Please set the TMOD_ENABLEDMODS environment variable equal to a comma-separated list of mod names."
+  echo -e "[SYSTEM] For more information, please see the Github README."
+  sleep 5s
 else
-  echo -e "[SYSTEM] Enabling Mods specified in the TMOD_ENABLEDMODS Environment variable..."
+  echo -e "[SYSTEM] Enabling Mods specified in the TMOD_ENABLEDMODS environment variable..."
   echo '[' > "$enabledpath"  # Overwrite the enabled.json file
-  # Convert the comma-separated list of mod names to an iterable list.
-  IFS=',' read -ra MOD_NAMES <<< "$TMOD_ENABLEDMODS"
-  for MOD_NAME in "${MOD_NAMES[@]}"
-  do
-    echo -e "[SYSTEM] Enabling $MOD_NAME..."
 
-    modname=$(ls -1 "$(ls -d "$modpath"/*/"$MOD_NAME"*/ | tail -n 1)" | sed -e 's/\.tmod$//')
-    if [ $? -ne 0 ]; then
-      echo -e " [!!] An error occurred while attempting to load $MOD_NAME."
+  # Remove single quotes and double quotes from the input
+  MOD_NAMES="${TMOD_ENABLEDMODS//[\'\"]}"
+
+  # Convert the comma-separated list of mod names to an array
+  IFS=',' read -ra MOD_ARRAY <<< "$MOD_NAMES"
+
+  for MOD_NAME in "${MOD_ARRAY[@]}"; do
+    echo -e "[SYSTEM] Enabling $MOD_NAME..."
+    modfile="$modpath/$MOD_NAME.tmod"
+    if [ ! -f "$modfile" ]; then
+      echo -e " [!!] The mod file '$MOD_NAME.tmod' does not exist."
       continue
     fi
-    # For each mod name that we resolve, write the internal name of it to the enabled.json file.
-    echo "\"$modname\"," >> "$enabledpath"
-    echo -e "[SYSTEM] Enabled $modname ($MOD_NAME) "
+    echo "\"$MOD_NAME\"," >> "$enabledpath"
+    echo -e "[SYSTEM] Enabled $MOD_NAME"
   done
+
   echo ']' >> "$enabledpath"
   echo -e "\n[SYSTEM] Finished loading mods."
 fi
 
-
 # Startup command
-server="$HOME/terraria-server/LaunchUtils/ScriptCaller.sh -server -config \"$configPath\""
+server="$HOME/terraria-server/LaunchUtils/ScriptCaller.sh -server -steamworkshopfolder \"$HOME/terraria-server/workshop-mods/steamapps/workshop\" -config \"$configPath\""
 
 # Trap the shutdown
 trap shutdown TERM INT

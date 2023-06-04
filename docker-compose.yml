@@ -1,7 +1,7 @@
 version: '3'
 services:
   tmodloader:
-    image: 'jacobsmile/tmodloader1.4:latest'
+    image: 'sithy/tmodloader1.4:latest'
     container_name: 'tmodloader'
     pull_policy: always
     user: terraria:terraria
@@ -11,10 +11,8 @@ services:
     expose:
       - "7777"
     environment:
-      # Download the Calamity mod and CalamityMusic mod.
-      - "TMOD_AUTODOWNLOAD=2824688072,2824688266"
       # Enable the Calamity mod and CalamityMusic mod.
-      - "TMOD_ENABLEDMODS=2824688072,2824688266"
+      - "TMOD_ENABLEDMODS="Mod1","Mod2""
       # Shutdown Message and Autosave Interval (In Minutes)
       - "TMOD_SHUTDOWN_MESSAGE=Goodbye!"
       - "TMOD_AUTOSAVE_INTERVAL=15"
@@ -33,7 +31,6 @@ services:
 
     volumes:
     #### UPDATE THE BELOW PATHS TO A DIRECTORY LOCAL TO YOUR MACHINE #####
-      - "path/to/worlds/folder:/home/terraria/.local/share/Terraria/tModLoader/Worlds"
-      - "path/to/mods/folder:/home/terraria/terraria-server/workshop-mods"
+      - "path/to/tModLoaderFolder/home/terraria/.local/share/Terraria/tModLoader"
       # Uncomment the below line if you plan to use a mapped config file. 
       # - "/path/to/config/config.txt:/root/terraria-server/serverconfig.txt"

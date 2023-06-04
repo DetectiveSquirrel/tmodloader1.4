@@ -26,8 +26,8 @@ ENV TMOD_SHUTDOWN_MESSAGE="Server is shutting down NOW!"
 # The autosave feature will save the world periodically. The interval is in minutes.
 ENV TMOD_AUTOSAVE_INTERVAL="10"
 
-# The mods we want to enable on the server on startup from the mods dir. Any omitted mods will not be loaded.
-# Example format: "mod1","mod2","mod3"
+# The mods we want to enable on the server on startup. Any omitted mods will not be loaded.
+# Example format: "mods1","mods2","mods3"
 ENV TMOD_ENABLEDMODS=""
 
 # If you want to specify your own config, set the following to "Yes".
