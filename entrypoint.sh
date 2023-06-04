@@ -69,7 +69,7 @@ if test -z "${TMOD_ENABLEDMODS}" ; then
     sleep 5s
 else
   echo -e "[SYSTEM] Enabling Mods specified in the TMOD_ENABLEDMODS Environment variable..."
-  echo '[' > "$enabledpath_temp"  # Write to a temporary file instead of directly modifying enabled.json
+  echo '[' > "$enabledpath"  # Overwrite the enabled.json file
   # Convert the comma-separated list of mod names to an iterable list.
   IFS=',' read -ra MOD_NAMES <<< "$TMOD_ENABLEDMODS"
   for MOD_NAME in "${MOD_NAMES[@]}"
@@ -81,14 +81,14 @@ else
       echo -e " [!!] An error occurred while attempting to load $MOD_NAME."
       continue
     fi
-    # For each mod name that we resolve, write the internal name of it to the temporary file.
-    echo "\"$modname\"," >> "$enabledpath_temp"
+    # For each mod name that we resolve, write the internal name of it to the enabled.json file.
+    echo "\"$modname\"," >> "$enabledpath"
     echo -e "[SYSTEM] Enabled $modname ($MOD_NAME) "
   done
-    echo ']' >> "$enabledpath_temp"
-    mv "$enabledpath_temp" "$enabledpath"  # Replace enabled.json with the temporary file
-    echo -e "\n[SYSTEM] Finished loading mods."
+  echo ']' >> "$enabledpath"
+  echo -e "\n[SYSTEM] Finished loading mods."
 fi
+
 
 # Startup command
 server="$HOME/terraria-server/LaunchUtils/ScriptCaller.sh -server -steamworkshopfolder \"$HOME/terraria-server/workshop-mods/steamapps/workshop\" -config \"$configPath\""
