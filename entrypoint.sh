@@ -46,18 +46,6 @@ function shutdown () {
   rm $pipe
 }
 
-# Download Mods
-if test -z "${TMOD_AUTODOWNLOAD}" ; then
-    echo -e "[SYSTEM] No mods to download. If you wish to download mods at runtime, please set the TMOD_AUTODOWNLOAD environment variable equal to a comma separated list of Mod Workshop IDs."
-    echo -e "[SYSTEM] For more information, please see the Github README."
-    sleep 5s
-else
-    echo -e "[SYSTEM] Downloading Mods specified in the TMOD_AUTODOWNLOAD Environment Variable. This may hand a while depending on the number of mods..."
-    # Convert the Comma Separated list of Mod IDs to a list of SteamCMD commands and call SteamCMD to download them all.
-    steamcmd +force_install_dir $HOME/terraria-server/workshop-mods +login anonymous +workshop_download_item 1281930 `echo -e $TMOD_AUTODOWNLOAD | sed 's/,/ +workshop_download_item 1281930 /g'` +quit
-    echo -e "[SYSTEM] Finished downloading mods."
-fi
-
 # Enable Mods
 enabledpath=$HOME/.local/share/Terraria/tModLoader/Mods/enabled.json
 modpath=$HOME/.local/share/Terraria/tModLoader/Mods
@@ -91,7 +79,7 @@ fi
 
 
 # Startup command
-server="$HOME/terraria-server/LaunchUtils/ScriptCaller.sh -server -steamworkshopfolder \"$HOME/terraria-server/workshop-mods/steamapps/workshop\" -config \"$configPath\""
+server="$HOME/terraria-server/LaunchUtils/ScriptCaller.sh -server -config \"$configPath\""
 
 # Trap the shutdown
 trap shutdown TERM INT
